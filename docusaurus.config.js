@@ -9,7 +9,7 @@ const config = {
   title: 'Linda Robledo',
   tagline: 'Docusaurus API Documentation Example',
   url: 'https://lindarobledo.com',
-  baseUrl: '/redocasaurus/build/index.html/',
+  baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
