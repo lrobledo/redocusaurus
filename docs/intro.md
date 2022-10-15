@@ -2,46 +2,81 @@
 sidebar_position: 1
 ---
 
-# Tutorial Intro
+# Getting Started
+### Requirements
 
-Let's discover **Docusaurus in less than 5 minutes**.
+To get started using the Capstone API you will need:
+- **Capstone credentials:** To request credentials, send us a message at sandbox@Capstone.com
+- **An HTTP client:** Our [API reference](/api) includes cURL examples.
+  You can also download our [Postman Collection](https://app.getpostman.com)
+  or use your preferred HTTP client.
 
-## Getting Started
+### Base URLs and Environments
 
-Get started by **creating a new site**.
+All endpoints are RESTful with the following base URLs:
 
-Or **try Docusaurus immediately** with **[docusaurus.new](https://docusaurus.new)**.
+Sandbox: `https://api.capstonesandbox.com`
 
-### What you'll need
+Production: `https://api.capstone.com`
 
-- [Node.js](https://nodejs.org/en/download/) version 16.14 or above:
-  - When installing Node.js, you are recommended to check all checkboxes related to dependencies.
+The **sandbox** environment allows you to run test transactions without affecting live data.
 
-## Generate a new site
+Once you have integrated with the sandbox environment you are ready to integrate to production with minimal changes.
+(Required updates include [authentication information](#basic-authentication) and encryption keys.)
 
-Generate a new Docusaurus site using the **classic template**.
 
-The classic template will automatically be added to your project after you run the command:
+### Your First Request
 
-```bash
-npm init docusaurus@latest my-website classic
+A good place to start getting familiar with our API is by sending a request to the [Who Am I](#who-am-i) endpoint.
+
+A successful request to this endpoint will return information about the user whose credentials have been used to authenticate the request,
+including:
+- First Name
+- Last Name
+- Username
+- A list of merchants to which the user has access rights
+
+To send a request, follow the steps below:
+
+1. Authenticate via [basic authentication](#basic-authentication).
+
+2. Send a `GET` request to the [Who Am I](#who-am-i) endpoint.
+
+<pre class="code-header example-request">Example Request</pre>
+```javascript
+curl -X GET https://api.Capstonesandbox.com/user/v3/account/whoAmI \
+  -H 'Accept: application/json' \
+  -H 'Authorization: Basic <Your Basic Auth>'
 ```
 
-You can type this command into Command Prompt, Powershell, Terminal, or any other integrated terminal of your code editor.
-
-The command also installs all necessary dependencies you need to run Docusaurus.
-
-## Start your site
-
-Run the development server:
-
-```bash
-cd my-website
-npm run start
+<pre class="code-header example-response">Example 200 Response</pre>
+```javascript
+{
+  "cognitoSub": "g52679a2-tan5-4a56-b6gc-2592aedd373e",
+  "firstName": "John",
+  "lastName": "Doe",
+  "userName": "jdoe@yourwebsite.com",
+  "accessRights": {
+    "merchantIds": {
+      "100039": "A"
+    },
+    "role": "A"
+  },
+  "dateLastModified": "2019-03-08T00:58:27.893Z",
+  "dateCreated": "2018-09-27T14:27:39.626Z",
+  "enabled": true,
+  "phone": "15555555555",
+  "notifications": false
+}
 ```
 
-The `cd` command changes the directory you're working with. In order to work with your newly created Docusaurus site, you'll need to navigate the terminal there.
+### Next steps
 
-The `npm run start` command builds your website locally and serves it through a development server, ready for you to view at http://localhost:3000/.
-
-Open `docs/intro.md` (this page) and edit some lines: the site **reloads automatically** and displays your changes.
+Once you have successfully made your first request, you are ready to move on.
+Depending on your workflow, you may wish to:
+- Load a [retail iframe](#retail-header)
+- Load an [e-commerce iframe](#e-commerce-header)
+- Use an [alternative payment method](#alternative-payment-methods-header)
+- Configure [webhooks](#webhooks) to notify you when transaction events take place
+- Retrieve a list of [transactions](#transactions)
+- [Dispute](#dispute-chargeback) a chargeback

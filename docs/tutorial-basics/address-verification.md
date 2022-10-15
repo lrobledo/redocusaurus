@@ -1,0 +1,245 @@
+---
+sidebar_position: 3
+---
+
+# Address Verification Service
+
+The Address Verifcation Service (AVS) compares the address and postal code provided with the information on file with the credit card issuer.
+Capstone interprets these results and returns them concisely back to you,
+making it easy for you to determine which cards to save, giving you greater control over your risk management.
+You can use AVS while **saving a card token** with the [Capstone iframe](#avs-iframe), with [your own form](#avs-your-own-form), or [through the API](#avs-api).
+
+Contact [Integrations Support](#contact-us) if you have questions about address verification.
+
+<!-- TODO: update this tutorial to include the retail iframe-->
+### Enable AVS
+#### With the Capstone Iframe {#avs-iframe}
+1. **Determine the Correct Setting**
+
+   Use the [AVS Settings](#avs-settings) table to determine which AVS setting best suits your needs.
+
+2. **Prepare the Iframe**
+
+   Follow **steps 1-2** of the [Create a Save Card Page With the Capstone Iframe](#save-card-with-iframe) tutorial.
+
+3. **Request a One-time-use Token**
+
+   Request an e-commerce [one-time-use token](#one-time-use-token).
+
+   Include the object `"processingOptions": { "verifyAvs": <your AVS setting from step 1> }`
+   in the body of your request.
+
+<pre class="code-header example-request">Example Request</pre>
+```
+curl -X POST https://api.Capstonesandbox.com/pay/v3/token \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json' \
+  -H 'Authorization: Basic <Your Basic Auth>'
+  -d '{
+  "processingOptions": {
+    "verifyAvs": 3
+  }
+}'
+```
+4. **Load the Iframe**
+
+   Follow **steps 4-6** of the [Create a Save Card Page With the Capstone Iframe](#save-card-with-iframe).
+   Now, when the iframe is loaded an AVS check will be performed.
+
+   Capstone will return the results back to you in the [AVS response](#avs-response).
+
+<!-- YOUR OWN FORM -------------------------------------------------------------------------------------------------------------------->
+#### With Your Own Form {#avs-your-own-form}
+1. **Determine the Correct Setting**
+
+   Use the [AVS Settings](#avs-settings) table to determine which AVS setting best suits your needs.
+
+2. **Prepare the Iframe**
+
+   Follow **steps 1-6** of the [Create a Save Card Page With Your Own Form](#save-card-with-your-own-form) tutorial.
+
+3. **Request a One-time-use Token**
+
+   Request an e-commerce [one-time-use token](#one-time-use-token).
+
+   Include the object `"processingOptions": { "verifyAvs": <your AVS setting from step 1> }`
+   in the body of your request.
+
+   (This is **step 7a** of the [Create a Save Card Page With Your Own Form](#save-card-with-your-own-form) tutorial.)
+
+<pre class="code-header example-request">Example Request</pre>
+```
+curl -X POST https://api.Capstonesandbox.com/pay/v3/token \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json' \
+  -H 'Authorization: Basic <Your Basic Auth>'
+  -d '{
+  "processingOptions": {
+    "verifyAvs": 3
+  }
+}'
+```
+
+4. **Post Card Information to Capstone**
+
+   Follow **step 7b** of the [Create a Save Card Page With Your Own Form](#save-card-with-your-own-form) tutorial.
+
+5. **Listen for Capstone's Response**
+
+   Follow **step 8** of the [Create a Save Card Page With Your Own Form](#save-card-with-your-own-form) tutorial.
+   See the [AVS Response](#avs-response) section for more information about the possible results included in the response.
+
+
+<!-- WITH THE API -------------------------------------------------------------------------------------------------------------------->
+#### With the Capstone API {#avs-api}
+1. **Determine the Correct Setting**
+
+   Use the [AVS Settings](#avs-settings) table to determine which AVS setting best suits your needs.
+
+2. **Request a One-time-use Token**
+
+   Request an e-commerce [one-time-use token](#one-time-use-token).
+
+   Include the object `"processingOptions": { "verifyAvs": <your AVS setting from step 1> }`
+   in the body of your request.
+
+<pre class="code-header example-request">Example Request</pre>
+```
+curl -X POST https://api.Capstonesandbox.com/pay/v3/token \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json' \
+  -H 'Authorization: Basic <Your Basic Auth>'
+  -d '{
+  "processingOptions": {
+    "verifyAvs": 3
+  }
+}'
+```
+
+3. **Post Card Information to Capstone**
+
+   Follow **step 3** of the [Save a Card Token with the Capstone API](#save-card-token-api).
+
+#### The AVS Response {#avs-response}
+When you check AVS your response will include an object called `avsResults`.
+See the example below.
+
+<pre class="code-header example-response">Example 200 Response</pre>
+```json
+{
+  "token": {...},
+  "card": {...},
+  "data": {...},
+  "avsResults": {
+    "matchAddress": true,
+    "matchPostal": true,
+    "gatewayResponse": {...}
+  },
+  "cardType": "visa"
+}
+```
+
+##### Match Address
+The results of the address check.
+
+<!-- textlint-disable period-in-list-item -->
+- **True:** The address provided matches the address on file with the credit card issuer.
+- **False:** The address provided does not match the address on file with the credit card issuer.
+<!-- textlint-enable period-in-list-item -->
+
+(In this case, 'address' refers to the street address portion of the billing address.
+For example, if the address provided were 123 Sesame St. Manhattan, NY 10128,
+`matchAddress` would compare '123 Sesame St.' with the address on file.)
+
+**Note:** Card issuers may handle address checks differently.
+For your convenience, Capstone returns a simple `true` or `false` regardless of the card issuer.
+
+
+##### Match Postal
+The results of the postal code check.
+
+<!-- textlint-disable period-in-list-item -->
+- **True:** The postal code provided matches the postal code on file with the credit card issuer.
+- **False:** The postal code provided does not match the postal code on file with the credit card issuer.
+<!-- textlint-enable period-in-list-item -->
+
+(Using the example address above, `matchPostal` would compare '10128' with the postal code on file.)
+
+##### Gateway Response
+This part of the response includes raw details from the gateway's response to the AVS check.
+Format may vary by gateway.
+
+**Note:** A gateway AVS error will **not** prevent the card token from being saved.
+If you received a gateway error during an address verification check,
+you may wish to [delete the card token](#delete-card-tokens).
+
+### Test AVS
+In the sandbox environment you may trigger `matchAddress` and `matchPostal` values by using the following postal codes:
+
+Postal Code | `matchAddress` result | `matchPostal` result
+------------|-----------------------|---------------------
+56649       | `true`                | `true`
+39601       | `true`                | `false`
+53574       | `false`               | `true`
+49802       | `false`               | `false`
+
+Please be sure to use only the test postal codes provided in the table above.
+
+### AVS Settings
+`verifyAvs` set to: | Purpose
+--------------------|----------------
+0                   | Do not perform AVS check
+1                   | Always save card regardless of result
+2                   | Do not save card if the address match fails
+3                   | Do not save card if the postal code match fails
+4                   | Do not save the card if either the address match fails OR the postal code match fails
+5                   | Do not save the card if both the address match AND the postal code match fail
+
+##### When `verifyAvs` is set to 0
+You will not receive an `avsResponse` object.
+
+##### When `verifyAvs` is set to 1
+
+addressMatch | postalMatch | What will happen:
+-------------|-------------|------------------
+true         | true        | Card will be saved
+true         | false       | Card will be saved
+false        | true        | Card will be saved
+false        | false       | Card will be saved
+
+
+##### When `verifyAvs` is set to 2
+
+addressMatch | postalMatch | What will happen:
+-------------|-------------|------------------
+true         | true        | Card will be saved
+true         | false       | Card will be saved
+false        | true        | Card will not be saved
+false        | false       | Card will not be saved
+
+##### When `verifyAvs` is set to 3
+
+addressMatch | postalMatch | What will happen:
+-------------|-------------|------------------
+true         | true        | Card will be saved
+true         | false       | Card will not be saved
+false        | true        | Card will be saved
+false        | false       | Card will not be saved
+
+##### When `verifyAvs` is set to 4
+
+addressMatch | postalMatch | What will happen:
+-------------|-------------|------------------
+true         | true        | Card will be saved
+true         | false       | Card will not be saved
+false        | true        | Card will not be saved
+false        | false       | Card will not be saved
+
+##### When `verifyAvs` is set to 5
+
+addressMatch | postalMatch | What will happen:
+-------------|-------------|------------------
+true         | true        | Card will be saved
+true         | false       | Card will be saved
+false        | true        | Card will be saved
+false        | false       | Card will not be saved

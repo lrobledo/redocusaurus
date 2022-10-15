@@ -1,146 +1,62 @@
 ---
 sidebar_position: 4
 ---
+# Iframe Customization
+## Custom CSS
 
-# Markdown Features
+Capstone provides the option to provide a custom CSS file so that you can match your site's style.
 
-Docusaurus supports **[Markdown](https://daringfireball.net/projects/markdown/syntax)** and a few **additional features**.
+To do so, follow steps below:
 
-## Front Matter
+1. **Host Your CSS File**
 
-Markdown documents have metadata at the top called [Front Matter](https://jekyllrb.com/docs/front-matter/):
+    Host your CSS file, available publicly.
 
-```text title="my-doc.md"
-// highlight-start
----
-id: my-doc-id
-title: My document title
-description: My document description
-slug: /my-custom-url
----
-// highlight-end
+2. **Request a One-time-use Token**
 
-## Markdown heading
+    Send a `POST` request to the [E-commerce One-time-use Token](#one-time-use-token).
+    Include the URL of your CSS file as a UI Option in the body of your request.
+    See the example below.
 
-Markdown text with [links](./hello.md)
+<!-- textlint-disable terminology-->
+{{ var bodyParams = { uiOptions: { css: 'https://tester.Capstonesandbox.com/static/ecom-example1.css' } }; }}
+<!-- textlint-enable terminology-->
+
+#### Example Request
+```
+curl -X POST https://api.Capstonesandbox.com/pay/v3/token \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json' \
+  -H 'Authorization: Basic <Your Basic Auth>'
+  -d '{
+  "uiOptions": {
+    "css": "https://tester.Capstonesandbox.com/static/ecom-example1.css"
+  }
+}'
 ```
 
-## Links
-
-Regular Markdown links are supported, using url paths or relative file paths.
-
-```md
-Let's see how to [Create a page](/create-a-page).
+#### Example 200 Response
 ```
-
-```md
-Let's see how to [Create a page](./create-a-page.md).
-```
-
-**Result:** Let's see how to [Create a page](./create-a-page.md).
-
-## Images
-
-Regular Markdown images are supported.
-
-You can use absolute paths to reference images in the static directory (`static/img/docusaurus.png`):
-
-```md
-![Docusaurus logo](/img/docusaurus.png)
-```
-
-![Docusaurus logo](/img/docusaurus.png)
-
-You can reference images relative to the current file as well, as shown in [the extra guides](../tutorial-extras/manage-docs-versions.md).
-
-## Code Blocks
-
-Markdown code blocks are supported with Syntax highlighting.
-
-    ```jsx title="src/components/HelloDocusaurus.js"
-    function HelloDocusaurus() {
-        return (
-            <h1>Hello, Docusaurus!</h1>
-        )
-    }
-    ```
-
-```jsx title="src/components/HelloDocusaurus.js"
-function HelloDocusaurus() {
-  return <h1>Hello, Docusaurus!</h1>;
+{
+  "expiration": "2018-09-18T15:43:05.664Z",
+  "fraudUrl": "https://api.Capstonesandbox.com/pay/v3/fingerprint?token=01080f80-76b8-4363-845d-67e8623bf170",
+  "token": "830d36f6-a5e3-4455-9600-3a55b63e2fc2"
 }
 ```
 
-## Admonitions
+3. **Load the Iframe**
 
-Docusaurus has a special syntax to create admonitions and callouts:
+    You may wish to customize a:
+    - [Checkout Page](#run-card-transaction-iframe)
+    - [Save Card Token Page](#save-card-token-iframe)
+    - [Save E-check Token Page](#save-e-check-token-iframe)
 
-    :::tip My tip
+    For example, the following request will return the HTML for a checkout page,
+    with the style from the CSS file you specified in **step 2**.
 
-    Use this awesome feature option
-
-    :::
-
-    :::danger Take care
-
-    This action is dangerous
-
-    :::
-
-:::tip My tip
-
-Use this awesome feature option
-
-:::
-
-:::danger Take care
-
-This action is dangerous
-
-:::
-
-## MDX and React Components
-
-[MDX](https://mdxjs.com/) can make your documentation more **interactive** and allows using any **React components inside Markdown**:
-
-```jsx
-export const Highlight = ({children, color}) => (
-  <span
-    style={{
-      backgroundColor: color,
-      borderRadius: '20px',
-      color: '#fff',
-      padding: '10px',
-      cursor: 'pointer',
-    }}
-    onClick={() => {
-      alert(`You clicked the color ${color} with label ${children}`)
-    }}>
-    {children}
-  </span>
-);
-
-This is <Highlight color="#25c2a0">Docusaurus green</Highlight> !
-
-This is <Highlight color="#1877F2">Facebook blue</Highlight> !
+#### Example Request
 ```
-
-export const Highlight = ({children, color}) => (
-  <span
-    style={{
-      backgroundColor: color,
-      borderRadius: '20px',
-      color: '#fff',
-      padding: '10px',
-      cursor: 'pointer',
-    }}
-    onClick={() => {
-      alert(`You clicked the color ${color} with label ${children}`);
-    }}>
-    {children}
-  </span>
-);
-
-This is <Highlight color="#25c2a0">Docusaurus green</Highlight> !
-
-This is <Highlight color="#1877F2">Facebook blue</Highlight> !
+curl -X GET https://api.Capstonesandbox.com/pay/v3?token=830d36f6-a5e3-4455-9600-3a55b63e2fc2 \
+  -H 'Accept: application/json' \
+  -H 'One-time-use Token: API_KEY'
+```
